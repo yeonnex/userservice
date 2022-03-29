@@ -1,8 +1,12 @@
 package me.yeonnex.userservice.jpa;
 
-import lombok.Data;
+import lombok.*;
+
 import javax.persistence.*;
 
+@Builder
+@AllArgsConstructor
+@RequiredArgsConstructor
 @Data
 @Entity
 @Table(name = "users", schema = "citytimer")

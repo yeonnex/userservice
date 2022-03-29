@@ -1,10 +1,12 @@
 package me.yeonnex.userservice.dto;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 
-@Data
+@Getter
+@Setter
 public class UserDto {
     private String email;
     private String name;
