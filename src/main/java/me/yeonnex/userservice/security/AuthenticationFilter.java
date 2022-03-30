@@ -1,6 +1,8 @@
 package me.yeonnex.userservice.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import me.yeonnex.userservice.dto.UserDto;
 import me.yeonnex.userservice.service.UserService;
@@ -20,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * 2개의 메서드를 재정의할 것인데,
@@ -77,5 +80,14 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         log.debug(((User)authResult.getPrincipal()).getUsername()); // 함수 이름이 getUsername 이어서 좀 그렇긴 하지만 실제로는 이메일이 출력된다.
        String userEmail = ((User)authResult.getPrincipal()).getUsername(); // "mooomoo@naver.com"
        UserDto userDetailsByEmail = userService.getUserDetailsByEmail(userEmail);
+       String token = Jwts.builder()
+               .setSubject(userDetailsByEmail.getUserId())
+               .setExpiration(new Date(System.currentTimeMillis() + Long.parseLong(env.getProperty("token.expiration_time"))))
+               .signWith(SignatureAlgorithm.HS512, env.getProperty("token.secret"))
+               .compact(); // 토큰 완성 ! 🎊
+       log.info("토큰 생성 완료 🎊");
+       response.addHeader("token", token);
+       response.addHeader("userId", userDetailsByEmail.getUserId()); // 나중에 이 토큰이 정상적으로 만들어진 것인지 확인해보기 위한 값으로써 userId 전달할 것임
+
     }
 }
