@@ -3,6 +3,7 @@ package me.yeonnex.userservice.jpa;
 import lombok.*;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 @Builder
 @AllArgsConstructor
@@ -26,5 +27,8 @@ public class UserEntity {
 
     @Column(nullable = false)
     private String encryptedPwd;
+
+    @Column
+    private Timestamp createdAt;
 
 }

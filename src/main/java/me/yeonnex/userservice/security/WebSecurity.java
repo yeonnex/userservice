@@ -50,8 +50,8 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     }
 
     private AuthenticationFilter getAuthenticationFilter() throws Exception {
-        AuthenticationFilter authenticationFilter = new AuthenticationFilter();
-        authenticationFilter.setAuthenticationManager(authenticationManager()); // 인증 처리를 해주는 애(authenticationManager). 스프링 시큐리티에서 가져옴
+        AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManager(), userService, env);
+//        authenticationFilter.setAuthenticationManager(authenticationManager()); // 인증 처리를 해주는 애(authenticationManager). 스프링 시큐리티에서 가져옴
         // 로그인 처리 관련 쿼리 이런거 만들지 않았음. 스프링 시큐리티의 로그인 기능(authenticationManager)을 사용했기 때문!
         return authenticationFilter;
     }

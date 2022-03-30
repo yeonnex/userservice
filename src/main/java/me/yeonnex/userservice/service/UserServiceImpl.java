@@ -16,6 +16,15 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService{
+    @Override
+    public UserDto getUserDetailsByEmail(String userEmail) {
+        UserEntity userEntity = userRepository.findByEmail(userEmail);
+        if (userEntity == null)
+            throw new UsernameNotFoundException(userEmail);
+
+        UserDto userDto = new ModelMapper().map(userEntity, UserDto.class);
+        return userDto;
+    }
 
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;

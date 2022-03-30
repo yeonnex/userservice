@@ -2,8 +2,12 @@ package me.yeonnex.userservice.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import me.yeonnex.userservice.dto.UserDto;
+import me.yeonnex.userservice.service.UserService;
 import me.yeonnex.userservice.vo.RequestLogin;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -28,6 +32,15 @@ import java.util.ArrayList;
  * */
 @Slf4j
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+    private UserService userService;
+    private Environment env;
+
+    public AuthenticationFilter(AuthenticationManager authenticationManager, UserService userService, Environment env) {
+        super(authenticationManager);
+        this.userService = userService;
+        this.env = env;
+    }
+
     // 로그인 시도 시 "가장 먼저" 실행되는 함수. 중단점 찍어서 확인해보기 📌
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request,
@@ -62,6 +75,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         // User 는 스프링 시큐리티의 타입
         log.debug(((User)authResult.getPrincipal()).getUsername()); // 함수 이름이 getUsername 이어서 좀 그렇긴 하지만 실제로는 이메일이 출력된다.
-//        super.successfulAuthentication(request, response, chain, authResult);
+       String userEmail = ((User)authResult.getPrincipal()).getUsername(); // "mooomoo@naver.com"
+       UserDto userDetailsByEmail = userService.getUserDetailsByEmail(userEmail);
     }
 }

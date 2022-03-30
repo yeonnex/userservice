@@ -9,6 +9,8 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Component
@@ -25,6 +27,7 @@ public class UserRunner implements ApplicationRunner {
                 .name("moo")
                 .encryptedPwd(bCryptPasswordEncoder.encode("1234"))
                 .userId(UUID.randomUUID().toString())
+                .createdAt(Timestamp.valueOf(LocalDateTime.now()))
                 .build();
         userRepository.save(user1);
 
@@ -33,6 +36,7 @@ public class UserRunner implements ApplicationRunner {
                 .name("gamja")
                 .encryptedPwd(bCryptPasswordEncoder.encode("1234"))
                 .userId(UUID.randomUUID().toString())
+                .createdAt(Timestamp.valueOf(LocalDateTime.now()))
                 .build();
         userRepository.save(user2);
 
@@ -41,6 +45,7 @@ public class UserRunner implements ApplicationRunner {
                 .name("dangun")
                 .encryptedPwd(bCryptPasswordEncoder.encode("1234"))
                 .userId(UUID.randomUUID().toString())
+                .createdAt(Timestamp.valueOf(LocalDateTime.now()))
                 .build();
         userRepository.save(user3);
     }
