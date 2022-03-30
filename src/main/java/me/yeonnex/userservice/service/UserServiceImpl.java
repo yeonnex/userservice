@@ -77,6 +77,8 @@ public class UserServiceImpl implements UserService{
 
         // 이메일이 DB에 있다면, UserDetails 객체 반환! UserDetails 객체는 스프링에서 제공하는 User 클래스에서 만들 수 있음
         System.out.println("userEntity.getEmail() = " + userEntity.getEmail());
+
+        // User 는, "검색된 엔티티의 이메일"과 "검색된 엔티티의 암호화된 비번"과 각종 "권한리스트"를 가지고 있는 유저 객체이다
         return new org.springframework.security.core.userdetails.User(userEntity.getEmail(), userEntity.getEncryptedPwd(),
                 true, true,true,true, new ArrayList<>()); // 마지막 인자인 리스트에는 로그인이 되었을 때 할 수 있는 작업 중 권한 부여. 일단 지금은 권한 아무것도 설정한게 없으므로 빈 리스트 전달.
     }

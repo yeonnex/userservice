@@ -57,7 +57,8 @@ jwt 토큰으로 로그인 되었다/되지 않았다를 판단하겠음
   - org.springframework.security.web.authentication 패키지에 소속된 클래스
   - https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/web/authentication/UsernamePasswordAuthenticationFilter.html
 - attemptAuthentication(), successfulAuthentication() 함수 구현
-
+  ![img.png](img.png)
+  jwt 토큰 발행 후 responseHeader 에 담아주는 건 successfulAuthentication 함수에서 진행한다
 
 #### WebSecurity.java
 - **모든 사용자 요청에 대해** AuthenticationFilter 필터를 거치도록 **_수정_**
@@ -86,7 +87,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
 ```
 
-### 이번 커밋 주요 사항
+### 커밋 주요 사항 - commit Id: 6796fe2f
 0. 스프링 시큐리티를 의존성에 추가한뒤 별다른 설정을 바꾸지 않았다면, "/login" 주소는 컨트롤러에 명시하지 않아도 시큐리티가 낚아채감
 1. 회원가입, 전체 회원 조회 등 "/users/**"를 제외한 모든 요청은 authenticated() 로 설정. 즉 로그인이 되어있어야 됨. 아니라면 403(권한없음)을 내려줌
    - WebSecurity.java 참고 (anyRequest().authenticated())
