@@ -21,24 +21,24 @@ public class UserRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         UserEntity user1 = UserEntity.builder()
-                .email("syhoneyjam@naver.com")
-                .name("seoyeon")
+                .email("moomoo@naver.com")
+                .name("moo")
                 .encryptedPwd(bCryptPasswordEncoder.encode("1234"))
                 .userId(UUID.randomUUID().toString())
                 .build();
         userRepository.save(user1);
 
         UserEntity user2 = UserEntity.builder()
-                .email("yeonnex@gmail.com")
-                .name("yeonseo")
+                .email("gamjagamja@gmail.com")
+                .name("gamja")
                 .encryptedPwd(bCryptPasswordEncoder.encode("1234"))
                 .userId(UUID.randomUUID().toString())
                 .build();
         userRepository.save(user2);
 
         UserEntity user3 = UserEntity.builder()
-                .email("water@naver.com")
-                .name("firefire")
+                .email("dangundangun@naver.com")
+                .name("dangun")
                 .encryptedPwd(bCryptPasswordEncoder.encode("1234"))
                 .userId(UUID.randomUUID().toString())
                 .build();

@@ -6,14 +6,12 @@ import me.yeonnex.userservice.jpa.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,7 +31,7 @@ public class UserServiceImpl implements UserService{
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         UserEntity userEntity = mapper.map(userDto, UserEntity.class);
 
-        userEntity.setEncryptedPwd(bCryptPasswordEncoder.encode(userDto.getPwd()));
+        userEntity.setEncryptedPwd(bCryptPasswordEncoder.encode(userDto.getPassword()));
 
         UserEntity newUser = userRepository.save(userEntity);
         return mapper.map(newUser, UserDto.class);
@@ -65,5 +63,21 @@ public class UserServiceImpl implements UserService{
                 allUserEntity.stream().map(u -> mapper.map(u, UserDto.class)).collect(Collectors.toList());
 
         return userDtoList;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException { // <- 내 서비스는 username 을 검색해오지 않고,
+        System.out.println("loadUserByUsername 호출" + username);
+        UserEntity user = userRepository.findByEmail(username);// <- 변수 이름만 username 이지, 이메일 값이 들어있음. 이메일 값을 전달할 것이기 때문 // email 을 검색해올 것임
+        // 이메일이 DB에 없다면, 예외 던짐 🤾‍
+        if (user == null){
+            throw new UsernameNotFoundException(user.getEmail());
+        }
+        UserEntity userEntity = new ModelMapper().map(user, UserEntity.class);
+
+        // 이메일이 DB에 있다면, UserDetails 객체 반환! UserDetails 객체는 스프링에서 제공하는 User 클래스에서 만들 수 있음
+        System.out.println("userEntity.getEmail() = " + userEntity.getEmail());
+        return new org.springframework.security.core.userdetails.User(userEntity.getEmail(), userEntity.getEncryptedPwd(),
+                true, true,true,true, new ArrayList<>()); // 마지막 인자인 리스트에는 로그인이 되었을 때 할 수 있는 작업 중 권한 부여. 일단 지금은 권한 아무것도 설정한게 없으므로 빈 리스트 전달.
     }
 }

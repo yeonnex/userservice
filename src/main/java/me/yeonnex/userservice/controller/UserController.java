@@ -7,15 +7,13 @@ import me.yeonnex.userservice.vo.ResponseUser;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 public class UserController {
@@ -73,6 +71,12 @@ public class UserController {
 //        System.out.println("=====컨트롤러에서 유저 출력========");
 //        System.out.println(userDto);
         return ResponseEntity.status(HttpStatus.OK).body(mapper.map(userById, ResponseUser.class));
+    }
+
+    @GetMapping("/popo")
+    public ResponseEntity popo(){
+
+        return ResponseEntity.status(HttpStatus.OK).body(HttpStatus.OK);
     }
 
 }
