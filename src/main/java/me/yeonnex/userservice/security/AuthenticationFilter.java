@@ -3,7 +3,9 @@ package me.yeonnex.userservice.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.yeonnex.userservice.auth.PrincipalDetails;
 import me.yeonnex.userservice.dto.UserDto;
 import me.yeonnex.userservice.service.UserService;
 import me.yeonnex.userservice.vo.RequestLogin;
@@ -34,34 +36,35 @@ import java.util.Date;
  * 있는 값으로 변환하기 위해 존재. 이 타입으로 만들어주어야 한다.
  * */
 @Slf4j
+@RequiredArgsConstructor
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-    private UserService userService;
-    private Environment env;
+    private final UserService userService;
+    private final Environment env;
+    private final AuthenticationManager authenticationManager;
 
-    public AuthenticationFilter(AuthenticationManager authenticationManager, UserService userService, Environment env) {
-        super(authenticationManager);
-        this.userService = userService;
-        this.env = env;
-    }
 
     // 로그인 시도 시 "가장 먼저" 실행되는 함수. 중단점 찍어서 확인해보기 📌
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request,
                                                 HttpServletResponse response) throws AuthenticationException {
-        System.out.println("~~~필터 통과중~~~");
+        log.info("AuthenticationFilter: 로그인 시도중");
         try {
             RequestLogin credential = new ObjectMapper().readValue(request.getInputStream(), RequestLogin.class);
+            log.info(String.valueOf(credential)); // RequestLogin(email="moomoo@naver.com", password="1234")
             // 이제 사용자가 입력한 로그인 정보를 받았으니, 이것을 가지고 인증정보를 만들어보자
             // 이를 위해서는 UsernamePasswordAuthenticationFilter 에 전달을 해주어야 한다
             // -> UsernamePasswordAuthentication"Token" 으로 변경해줘야 한다!
-            return getAuthenticationManager().authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            credential.getEmail(),
-                            credential.getPassword(),
-                            new ArrayList<>()));
-            // new UsernamePasswordAuthenticationToken(credential.getEmail(), credential.getPassword(), new ArrayList<>())
-            // 위 값을 AuthenticationManager 에게 전달해 인증작업을 요청하자.
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(credential.getEmail(), credential.getPassword());
+            /*
+                PrincipalDetailsService 의 loadUserByUsername 함수가 실행된 후 정상이면 authentication 이 리턴됨.
+             */
+            Authentication authentication = authenticationManager.authenticate(authenticationToken);
+            PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+            log.info("로그인 안료됨: " + PrincipalDetails.getAccount().getUsername()); // 로그인이 정상적으로 되었다는 뜻
 
+            // authentication 객체가 시큐리티 영역에 저장이 되어야 하는데, 그 방법이 return 해주는 것.
+            return authentication;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -83,9 +86,14 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
        String token = Jwts.builder()
                .setSubject(userDetailsByEmail.getUserId())
                .setExpiration(new Date(System.currentTimeMillis() + Long.parseLong(env.getProperty("token.expiration_time"))))
-               .signWith(SignatureAlgorithm.HS512, env.getProperty("token.secret"))
+               .signWith(SignatureAlgorithm.HS256, env.getProperty("token.secret"))
                .compact(); // 토큰 완성 ! 🎊
        log.info("토큰 생성 완료 🎊");
+       System.out.println(token);
+       System.out.println(new Date(System.currentTimeMillis() + Long.parseLong(env.getProperty("token.expiration_time"))));
+       System.out.println(new Date(System.currentTimeMillis()));
+       System.out.println(Long.parseLong(env.getProperty("token.expiration_time")));
+
        response.addHeader("token", token);
        response.addHeader("userId", userDetailsByEmail.getUserId()); // 나중에 이 토큰이 정상적으로 만들어진 것인지 확인해보기 위한 값으로써 userId 전달할 것임
 
